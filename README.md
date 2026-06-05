@@ -34,7 +34,7 @@ Open your terminal inside the project root directory:
    ./gradlew assembleDebug --no-daemon
    ```
    Once completed successfully, the APK will be generated at:
-   `app/build/outputs/apk/debug/app-debug.apk`
+   `app/build/outputs/apk/debug/AttendanceTracker-debug-1.0.apk`
 
 ---
 
@@ -50,11 +50,11 @@ To install the compiled APK on any Android phone or device, use one of the follo
 2. Connect your Android device to your computer via USB.
 3. Install the APK from terminal:
    ```bash
-   adb install app/build/outputs/apk/debug/app-debug.apk
+   adb install app/build/outputs/apk/debug/AttendanceTracker-debug-1.0.apk
    ```
 
 ### Method 2: Manual Installation (Installing directly from Phone)
-1. Transfer the built APK file `app-debug.apk` to your phone (e.g., via Google Drive, USB transfer, or Email).
+1. Transfer the built APK file `AttendanceTracker-debug-1.0.apk` to your phone (e.g., via Google Drive, USB transfer, or Email).
 2. Open a File Manager app on your Android phone and navigate to the folder containing the APK.
 3. Tap the APK file to install it.
 4. If prompted with *"For your security, your phone is not allowed to install unknown apps from this source"*:
