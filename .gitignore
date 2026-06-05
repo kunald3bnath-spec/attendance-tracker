@@ -1,0 +1,24 @@
+# Gradle
+.gradle/
+/build/
+
+# Android
+**/build/
+**/captures/
+*.log
+*.hprof
+
+# Local configuration
+local.properties
+
+# IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Kotlin
+*.kotlin_module
+
+# Misc
+.DS_Store

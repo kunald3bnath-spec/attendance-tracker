@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        Minimal XML theme — just enough to launch the Activity window.
+        All Compose UI theming is handled by AttendanceTrackerTheme in Kotlin.
+    -->
+    <style name="Theme.AttendanceTracker" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@color/background</item>
+        <item name="android:statusBarColor">@color/background</item>
+    </style>
+</resources>
