@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -80,6 +81,129 @@ class AttendanceViewModelTest {
 
         viewModel.togglePending(10L, false)
         assertEquals(false, viewModel.pendingAttendance.value[10L])
+    }
+
+    // ── Project / Member persistence ──────────────────────────────────────────
+
+    @Test
+    fun testAddProjectPersistsToDao() = runTest {
+        viewModel.addProject("Sprint Team")
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(1, fakeProjectDao.projects.value.size)
+        assertEquals("Sprint Team", fakeProjectDao.projects.value[0].name)
+    }
+
+    @Test
+    fun testBlankProjectNameNotAdded() = runTest {
+        viewModel.addProject("   ")
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertTrue(fakeProjectDao.projects.value.isEmpty())
+    }
+
+    @Test
+    fun testDeleteProjectRemovesFromDao() = runTest {
+        fakeProjectDao.insert(Project(name = "Old Project"))
+        val projectId = fakeProjectDao.projects.value[0].id
+
+        viewModel.deleteProject(projectId)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertTrue(fakeProjectDao.projects.value.isEmpty())
+    }
+
+    @Test
+    fun testAddMemberPersistsToDao() = runTest {
+        fakeProjectDao.insert(Project(id = 1L, name = "Team A"))
+        viewModel.selectProject(1L)
+
+        viewModel.addMember("Alice")
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(1, fakeMemberDao.members.value.size)
+        assertEquals("Alice", fakeMemberDao.members.value[0].name)
+        assertEquals(1L, fakeMemberDao.members.value[0].projectId)
+    }
+
+    @Test
+    fun testBlankMemberNameNotAdded() = runTest {
+        fakeProjectDao.insert(Project(id = 1L, name = "Team A"))
+        viewModel.selectProject(1L)
+        viewModel.addMember("")
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertTrue(fakeMemberDao.members.value.isEmpty())
+    }
+
+    // ── Date selection ────────────────────────────────────────────────────────
+
+    @Test
+    fun testSetSelectedDateClearsPending() {
+        viewModel.selectProject(1L)
+        viewModel.togglePending(5L, true)
+        assertEquals(1, viewModel.pendingAttendance.value.size)
+
+        viewModel.setSelectedDate(LocalDate.now().plusDays(1))
+
+        assertTrue(viewModel.pendingAttendance.value.isEmpty())
+        assertFalse(viewModel.submitted.value)
+    }
+
+    @Test
+    fun testSetSelectedDateSameDateDoesNotClearPending() {
+        viewModel.togglePending(5L, true)
+        val today = LocalDate.now()
+
+        viewModel.setSelectedDate(today)  // same date — should be a no-op
+
+        assertEquals(1, viewModel.pendingAttendance.value.size)
+    }
+
+    // ── Pending / initFromSaved ───────────────────────────────────────────────
+
+    @Test
+    fun testInitPendingFromSavedPopulatesMap() {
+        val saved = listOf(
+            AttendanceRecord(memberId = 1L, dateEpochDay = 100L),
+            AttendanceRecord(memberId = 2L, dateEpochDay = 100L),
+        )
+        viewModel.initPendingFromSaved(saved)
+
+        assertEquals(true, viewModel.pendingAttendance.value[1L])
+        assertEquals(true, viewModel.pendingAttendance.value[2L])
+    }
+
+    @Test
+    fun testInitPendingFromSavedIsNoOpWhenNonEmpty() {
+        viewModel.togglePending(1L, false)  // pending is now non-empty
+
+        // Calling initPendingFromSaved should NOT overwrite the user's explicit toggle
+        viewModel.initPendingFromSaved(listOf(AttendanceRecord(memberId = 1L, dateEpochDay = 100L)))
+
+        assertEquals(false, viewModel.pendingAttendance.value[1L])
+    }
+
+    // ── clearSelectedProject ──────────────────────────────────────────────────
+
+    @Test
+    fun testClearSelectedProjectResetsState() {
+        viewModel.selectProject(1L)
+        viewModel.togglePending(3L, true)
+        assertFalse(viewModel.pendingAttendance.value.isEmpty())
+
+        viewModel.clearSelectedProject()
+
+        assertTrue(viewModel.pendingAttendance.value.isEmpty())
+        assertNull(viewModel.selectedProject.value)
+    }
+
+    // ── submitted flag ────────────────────────────────────────────────────────
+
+    @Test
+    fun testTogglePendingKeepsSubmittedFalse() {
+        viewModel.selectProject(1L)
+        viewModel.togglePending(1L, true)
+        assertFalse(viewModel.submitted.value)
+        viewModel.togglePending(1L, false)
+        assertFalse(viewModel.submitted.value)
     }
 
     // Fake DAO implementations storing state in local memory Flow objects
