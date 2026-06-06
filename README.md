@@ -208,10 +208,25 @@ cd attendance-tracker-android
 
 The APK is written to:
 ```
-app/build/outputs/apk/debug/AttendanceTracker-debug-1.0.apk
+app/build/outputs/apk/debug/app-debug.apk
 ```
 
 > Add `--no-daemon` when building in CI or single-run environments to avoid a lingering Gradle daemon process.
+
+### Option C — Automated Build & Export (Recommended)
+
+The project includes an automated script `./build_and_export_apk.sh` that:
+1. Resizes the **Neon Dark Calendar** custom launcher icon to all standard Android mipmap sizes.
+2. Compiles and builds the debug APK.
+3. Automatically exports the built APK directly to your Desktop.
+
+To execute it, run:
+```bash
+./build_and_export_apk.sh
+```
+
+The exported APK will be located at:
+`/Users/kunal/Desktop/apk/attendance-tracker.apk`
 
 ### Option B — Android Studio
 
@@ -262,12 +277,12 @@ The HTML test report is written to:
    - Settings → Developer Options → USB Debugging → ON.
 3. Connect the device via USB, then run:
    ```bash
-   adb install app/build/outputs/apk/debug/AttendanceTracker-debug-1.0.apk
+   adb install /Users/kunal/Desktop/apk/attendance-tracker.apk
    ```
 
 ### Method 2 — Manual sideload
 
-1. Transfer `AttendanceTracker-debug-1.0.apk` to the device (USB, Google Drive, email, etc.).
+1. Transfer `attendance-tracker.apk` to the device (USB, Google Drive, email, etc.).
 2. Open a file manager on the device and tap the APK to install.
 3. If blocked by "Install unknown apps" restriction:
    - Tap **Settings** on the prompt → enable **Allow from this source** → go back → tap **Install**.
