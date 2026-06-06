@@ -241,7 +241,7 @@ class AttendanceViewModelTest {
         override fun getProjectById(id: Long): Flow<Project?> = projects.map { list -> list.find { it.id == id } }
         override suspend fun insert(project: Project): Long {
             val newList = projects.value.toMutableList()
-            val newId = (newList.size + 1).toLong()
+            val newId = if (project.id == 0L) (newList.size + 1).toLong() else project.id
             newList.add(project.copy(id = newId))
             projects.value = newList
             return newId
@@ -259,7 +259,7 @@ class AttendanceViewModelTest {
         override fun getMemberById(id: Long): Flow<Member?> = members.map { list -> list.find { it.id == id } }
         override suspend fun insert(member: Member) {
             val newList = members.value.toMutableList()
-            val newId = (newList.size + 1).toLong()
+            val newId = if (member.id == 0L) (newList.size + 1).toLong() else member.id
             newList.add(member.copy(id = newId))
             members.value = newList
         }
