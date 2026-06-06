@@ -32,4 +32,10 @@ interface AttendanceRecordDao {
 
     @Query("DELETE FROM attendance_records WHERE memberId IN (:memberIds) AND dateEpochDay = :dateEpochDay")
     suspend fun deleteAttendanceForDate(memberIds: List<Long>, dateEpochDay: Long)
+
+    @Query("DELETE FROM attendance_records WHERE memberId = :memberId")
+    suspend fun deleteAttendanceForMember(memberId: Long)
+
+    @Query("DELETE FROM attendance_records WHERE memberId IN (SELECT id FROM members WHERE projectId = :projectId)")
+    suspend fun deleteAttendanceForProject(projectId: Long)
 }

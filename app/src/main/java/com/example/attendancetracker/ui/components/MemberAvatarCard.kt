@@ -2,9 +2,10 @@ package com.example.attendancetracker.ui.components
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,11 +35,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MemberAvatarCard(
     name: String,
     isPresent: Boolean,
     onToggle: (Boolean) -> Unit,
+    onLongClick: (() -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
     val avatarBg by animateColorAsState(
@@ -66,7 +69,10 @@ fun MemberAvatarCard(
                 color = cardBorder,
                 shape = RoundedCornerShape(14.dp)
             )
-            .clickable { onToggle(!isPresent) },
+            .combinedClickable(
+                onClick = { onToggle(!isPresent) },
+                onLongClick = onLongClick
+            ),
         shape = RoundedCornerShape(14.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = if (isPresent) 4.dp else 1.dp),
         colors = CardDefaults.cardColors(

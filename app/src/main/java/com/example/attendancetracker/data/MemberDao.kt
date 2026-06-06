@@ -16,4 +16,10 @@ interface MemberDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(member: Member)
+
+    @Query("DELETE FROM members WHERE id = :id")
+    suspend fun delete(id: Long)
+
+    @Query("DELETE FROM members WHERE projectId = :projectId")
+    suspend fun deleteMembersForProject(projectId: Long)
 }

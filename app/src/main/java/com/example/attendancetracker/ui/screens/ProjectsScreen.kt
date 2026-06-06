@@ -18,11 +18,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,6 +41,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -60,6 +63,7 @@ fun ProjectsScreen(
 
     var showDialog by rememberSaveable { mutableStateOf(false) }
     var newProjectName by rememberSaveable { mutableStateOf("") }
+    var projectToDelete by remember { mutableStateOf<Project?>(null) }
 
     Scaffold(
         topBar = {
@@ -157,6 +161,15 @@ fun ProjectsScreen(
                                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                                     )
                                 }
+                                IconButton(
+                                    onClick = { projectToDelete = project }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "Delete project",
+                                        tint = MaterialTheme.colorScheme.error
+                                    )
+                                }
                             }
                         }
                     }
@@ -164,7 +177,7 @@ fun ProjectsScreen(
             }
         }
     }
-
+ 
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false; newProjectName = "" },
@@ -186,6 +199,35 @@ fun ProjectsScreen(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
+            }
+        )
+    }
+
+    projectToDelete?.let { project ->
+        AlertDialog(
+            onDismissRequest = { projectToDelete = null },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.deleteProject(project.id)
+                        projectToDelete = null
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
+                    )
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { projectToDelete = null }) {
+                    Text("Cancel")
+                }
+            },
+            title = { Text("Delete Project?", fontWeight = FontWeight.Bold) },
+            text = {
+                Text("Are you sure you want to delete project \"${project.name}\"? This will permanently delete all members and attendance records. This action cannot be undone.")
             }
         )
     }

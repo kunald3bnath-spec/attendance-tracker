@@ -40,7 +40,7 @@ class AttendanceViewModelTest {
         Dispatchers.setMain(testDispatcher)
         fakeProjectDao = FakeProjectDao()
         fakeMemberDao = FakeMemberDao()
-        fakeAttendanceRecordDao = FakeAttendanceRecordDao()
+        fakeAttendanceRecordDao = FakeAttendanceRecordDao { fakeMemberDao.members.value }
         repository = AttendanceRepository(fakeProjectDao, fakeMemberDao, fakeAttendanceRecordDao)
         viewModel = AttendanceViewModel(repository)
     }
@@ -109,6 +109,33 @@ class AttendanceViewModelTest {
         testDispatcher.scheduler.advanceUntilIdle()
 
         assertTrue(fakeProjectDao.projects.value.isEmpty())
+    }
+
+    @Test
+    fun testDeleteProjectCascadesToMembersAndAttendance() = runTest {
+        fakeProjectDao.insert(Project(id = 1L, name = "Project 1"))
+        fakeMemberDao.insert(Member(id = 10L, projectId = 1L, name = "Bob"))
+        fakeAttendanceRecordDao.insert(AttendanceRecord(memberId = 10L, dateEpochDay = 500L))
+
+        viewModel.deleteProject(1L)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertTrue(fakeProjectDao.projects.value.isEmpty())
+        assertTrue(fakeMemberDao.members.value.isEmpty())
+        assertTrue(fakeAttendanceRecordDao.records.value.isEmpty())
+    }
+
+    @Test
+    fun testDeleteMemberRemovesRecords() = runTest {
+        fakeProjectDao.insert(Project(id = 1L, name = "Project 1"))
+        fakeMemberDao.insert(Member(id = 10L, projectId = 1L, name = "Bob"))
+        fakeAttendanceRecordDao.insert(AttendanceRecord(memberId = 10L, dateEpochDay = 500L))
+
+        viewModel.deleteMember(10L)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertTrue(fakeMemberDao.members.value.isEmpty())
+        assertTrue(fakeAttendanceRecordDao.records.value.isEmpty())
     }
 
     @Test
@@ -236,9 +263,17 @@ class AttendanceViewModelTest {
             newList.add(member.copy(id = newId))
             members.value = newList
         }
+        override suspend fun delete(id: Long) {
+            members.value = members.value.filter { it.id != id }
+        }
+        override suspend fun deleteMembersForProject(projectId: Long) {
+            members.value = members.value.filter { it.projectId != projectId }
+        }
     }
 
-    private class FakeAttendanceRecordDao : com.example.attendancetracker.data.AttendanceRecordDao {
+    private class FakeAttendanceRecordDao(
+        private val getMembers: () -> List<Member>
+    ) : com.example.attendancetracker.data.AttendanceRecordDao {
         val records = MutableStateFlow<List<AttendanceRecord>>(emptyList())
 
         override fun getAttendanceForDate(dateEpochDay: Long): Flow<List<AttendanceRecord>> =
@@ -259,9 +294,17 @@ class AttendanceViewModelTest {
             this.records.value = newList
         }
 
-
         override suspend fun deleteAttendanceForDate(memberIds: List<Long>, dateEpochDay: Long) {
             records.value = records.value.filterNot { memberIds.contains(it.memberId) && it.dateEpochDay == dateEpochDay }
+        }
+
+        override suspend fun deleteAttendanceForMember(memberId: Long) {
+            records.value = records.value.filter { it.memberId != memberId }
+        }
+
+        override suspend fun deleteAttendanceForProject(projectId: Long) {
+            val memberIds = getMembers().filter { it.projectId == projectId }.map { it.id }.toSet()
+            records.value = records.value.filterNot { memberIds.contains(it.memberId) }
         }
     }
 }

@@ -64,6 +64,7 @@ fun MarkAttendanceScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     var showAddMember by rememberSaveable { mutableStateOf(false) }
     var newMemberName by rememberSaveable { mutableStateOf("") }
+    var memberToDelete by remember { mutableStateOf<Member?>(null) }
 
     // Compute set of dates that have any attendance record (for calendar dots)
     val markedDates = remember(projectAttendance) {
@@ -169,7 +170,8 @@ fun MarkAttendanceScreen(
                         MemberAvatarCard(
                             name = member.name,
                             isPresent = isPresent(member.id),
-                            onToggle = { present -> viewModel.togglePending(member.id, present) }
+                            onToggle = { present -> viewModel.togglePending(member.id, present) },
+                            onLongClick = { memberToDelete = member }
                         )
                     }
                 }
@@ -224,6 +226,35 @@ fun MarkAttendanceScreen(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
+            }
+        )
+    }
+
+    memberToDelete?.let { member ->
+        AlertDialog(
+            onDismissRequest = { memberToDelete = null },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.deleteMember(member.id)
+                        memberToDelete = null
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
+                    )
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { memberToDelete = null }) {
+                    Text("Cancel")
+                }
+            },
+            title = { Text("Delete Member?", fontWeight = FontWeight.Bold) },
+            text = {
+                Text("Are you sure you want to delete member \"${member.name}\"? This will permanently delete all their attendance history. This action cannot be undone.")
             }
         )
     }

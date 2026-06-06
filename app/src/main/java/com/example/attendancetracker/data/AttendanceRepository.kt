@@ -16,7 +16,16 @@ class AttendanceRepository(
         if (project.name.isNotBlank()) projectDao.insert(project)
     }
 
-    suspend fun deleteProject(projectId: Long) = projectDao.delete(projectId)
+    suspend fun deleteProject(projectId: Long) {
+        attendanceRecordDao.deleteAttendanceForProject(projectId)
+        memberDao.deleteMembersForProject(projectId)
+        projectDao.delete(projectId)
+    }
+
+    suspend fun deleteMember(memberId: Long) {
+        attendanceRecordDao.deleteAttendanceForMember(memberId)
+        memberDao.delete(memberId)
+    }
 
     // ── Members ───────────────────────────────────────────────────────────────
     fun getMembersByProject(projectId: Long): Flow<List<Member>> =

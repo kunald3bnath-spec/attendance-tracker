@@ -84,6 +84,15 @@ class AttendanceViewModel(private val repository: AttendanceRepository) : ViewMo
         }
     }
 
+    fun deleteMember(memberId: Long) {
+        viewModelScope.launch {
+            repository.deleteMember(memberId)
+            if (_selectedMemberId.value == memberId) {
+                _selectedMemberId.value = null
+            }
+        }
+    }
+
     // ── Date selection ────────────────────────────────────────────────────────
     private val _selectedDate = MutableStateFlow(LocalDate.now())
     val selectedDate: StateFlow<LocalDate> = _selectedDate
