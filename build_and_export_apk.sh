@@ -15,6 +15,6 @@ echo "Step 2: Cleaning and building the debug APK..."
 
 echo "Step 3: Creating target directory and exporting APK..."
 mkdir -p /Users/kunal/Desktop/apk
-cp app/build/outputs/apk/debug/app-debug.apk /Users/kunal/Desktop/apk/attendance-tracker.apk
+cp app/build/outputs/apk/debug/AttendanceTracker-debug-1.0.apk /Users/kunal/Desktop/apk/attendance-tracker.apk
 
 echo "Done! APK successfully generated and saved to /Users/kunal/Desktop/apk/attendance-tracker.apk"

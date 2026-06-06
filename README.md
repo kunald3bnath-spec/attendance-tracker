@@ -208,7 +208,7 @@ cd attendance-tracker-android
 
 The APK is written to:
 ```
-app/build/outputs/apk/debug/app-debug.apk
+app/build/outputs/apk/debug/AttendanceTracker-debug-1.0.apk
 ```
 
 > Add `--no-daemon` when building in CI or single-run environments to avoid a lingering Gradle daemon process.
