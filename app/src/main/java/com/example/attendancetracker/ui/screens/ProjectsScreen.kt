@@ -50,6 +50,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.attendancetracker.AttendanceViewModel
+import com.example.attendancetracker.data.Project
 import com.example.attendancetracker.ui.components.AgentMarker
 
 @OptIn(ExperimentalMaterial3Api::class)

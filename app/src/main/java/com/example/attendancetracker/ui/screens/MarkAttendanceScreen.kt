@@ -45,6 +45,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.attendancetracker.AttendanceViewModel
+import com.example.attendancetracker.data.Member
 import com.example.attendancetracker.ui.components.InlineCalendar
 import com.example.attendancetracker.ui.components.MemberAvatarCard
 
