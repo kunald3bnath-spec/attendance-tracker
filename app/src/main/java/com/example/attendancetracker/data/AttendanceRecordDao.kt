@@ -14,8 +14,6 @@ interface AttendanceRecordDao {
     @Query("SELECT * FROM attendance_records WHERE memberId = :memberId ORDER BY dateEpochDay DESC")
     fun getAttendanceForMember(memberId: Long): Flow<List<AttendanceRecord>>
 
-    @Query("SELECT * FROM attendance_records ORDER BY dateEpochDay DESC")
-    fun getAllAttendance(): Flow<List<AttendanceRecord>>
 
     @Query("""
         SELECT ar.* FROM attendance_records ar
@@ -31,8 +29,6 @@ interface AttendanceRecordDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(records: List<AttendanceRecord>)
 
-    @Query("DELETE FROM attendance_records WHERE memberId = :memberId AND dateEpochDay = :dateEpochDay")
-    suspend fun deleteAttendance(memberId: Long, dateEpochDay: Long)
 
     @Query("DELETE FROM attendance_records WHERE memberId IN (:memberIds) AND dateEpochDay = :dateEpochDay")
     suspend fun deleteAttendanceForDate(memberIds: List<Long>, dateEpochDay: Long)

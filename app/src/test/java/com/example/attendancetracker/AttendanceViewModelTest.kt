@@ -245,7 +245,6 @@ class AttendanceViewModelTest {
             records.map { list -> list.filter { it.dateEpochDay == dateEpochDay } }
         override fun getAttendanceForMember(memberId: Long): Flow<List<AttendanceRecord>> =
             records.map { list -> list.filter { it.memberId == memberId } }
-        override fun getAllAttendance(): Flow<List<AttendanceRecord>> = records
         override fun getAllAttendanceForProject(projectId: Long): Flow<List<AttendanceRecord>> = records
 
         override suspend fun insert(record: AttendanceRecord) {
@@ -260,9 +259,6 @@ class AttendanceViewModelTest {
             this.records.value = newList
         }
 
-        override suspend fun deleteAttendance(memberId: Long, dateEpochDay: Long) {
-            records.value = records.value.filterNot { it.memberId == memberId && it.dateEpochDay == dateEpochDay }
-        }
 
         override suspend fun deleteAttendanceForDate(memberIds: List<Long>, dateEpochDay: Long) {
             records.value = records.value.filterNot { memberIds.contains(it.memberId) && it.dateEpochDay == dateEpochDay }

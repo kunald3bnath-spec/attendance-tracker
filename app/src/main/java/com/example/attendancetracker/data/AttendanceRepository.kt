@@ -38,13 +38,6 @@ class AttendanceRepository(
     fun getAllAttendanceForProject(projectId: Long): Flow<List<AttendanceRecord>> =
         attendanceRecordDao.getAllAttendanceForProject(projectId)
 
-    suspend fun markPresent(memberId: Long, dateEpochDay: Long) {
-        attendanceRecordDao.insert(AttendanceRecord(memberId = memberId, dateEpochDay = dateEpochDay))
-    }
-
-    suspend fun clearAttendance(memberId: Long, dateEpochDay: Long) {
-        attendanceRecordDao.deleteAttendance(memberId, dateEpochDay)
-    }
 
     /** Submit a full day's attendance — replace everything for the given date in this project */
     suspend fun submitAttendance(

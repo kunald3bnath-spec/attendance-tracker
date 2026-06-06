@@ -104,9 +104,8 @@ erDiagram
     }
 
     ATTENDANCE_RECORD {
-        Long id           PK
-        Long memberId     FK
-        Long dateEpochDay
+        Long memberId     PK, FK
+        Long dateEpochDay PK
     }
 
     PROJECT    ||--o{ MEMBER            : "contains"
@@ -225,11 +224,31 @@ app/build/outputs/apk/debug/AttendanceTracker-debug-1.0.apk
 
 ## Running Tests
 
+### Option A — Unified Test Script (Local Verification)
+The project includes a unified test runner script `./run_all_tests.sh` that automates starting the emulator, waiting for the boot sequence, running both unit and instrumented tests, and collecting outputs.
+
+To execute it, run:
+```bash
+./run_all_tests.sh
+```
+
+### Option B — Run Manually
+
+#### 1. Unit Tests
+To run the 14 JVM-based unit tests for the ViewModel:
 ```bash
 ./gradlew test
 ```
+The HTML test report is written to:
+`app/build/reports/tests/testDebugUnitTest/index.html`
 
-Unit test results are written to `app/build/reports/tests/testDebugUnitTest/index.html`.
+#### 2. Instrumented Smoke Tests
+To run the 7 Compose instrumented UI tests on a connected device/emulator:
+```bash
+./gradlew connectedDebugAndroidTest
+```
+The HTML test report is written to:
+`app/build/reports/androidTests/connected/index.html`
 
 ---
 
